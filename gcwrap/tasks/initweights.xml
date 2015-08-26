@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+      file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+<task type="function" name="initweights" category="calibration">
+	<shortdescription>Initializes weight information in the MS</shortdescription>
+
+<input>
+	<param type="string" name="vis" mustexist="true">
+		<description>Name of input visibility file (MS)</description>
+		<value></value>
+	</param>
+	<param type="string" name="wtmode">
+		<description>Initialization mode</description>
+		<value>nyq</value>
+                <allowed kind="enum">
+                       <value>nyq</value>
+                       <value>sigma</value>
+                       <value>weight</value>
+                       <value>ones</value>
+                       <value>delwtsp</value>
+                       <value>delsigsp</value>
+                </allowed>
+	</param>
+	<param type="bool" name="dowtsp">
+		<description>Initialize the WEIGHT_SPECTRUM column.</description>
+		<value>False</value>
+	</param>
+	</input>
+<returns type="void"/>
+
+<example>
+
+      This task provides for initialization of the weight information
+      in the MS.  For ALMA and EVLA data, it should not generally be
+      necessary to use this task, as the weight information should 
+      have been initialized properly at fill time (v4.2.2 and later).
+
+      Several initialization modes are supported via the wtmode parameter.
+
+      If wtmode='nyq' (the default), SIGMA and WEIGHT will be
+      initialized according to bandwidth and integration time.  This
+      is the theoretically correct mode for raw normalized visibilities.
+      (e.g., ALMA).  For the EVLA, this is correct if switched-power
+      and bandpass calibration will later be applied.  
+
+      If wtmode='sigma', WEIGHT will be initialized according to the
+      existing SIGMA column.  
+
+      If mode='weight', WEIGHT_SPECTRUM will be initialized according
+      to the existing WEIGHT column; dowtspec=T must be specified in
+      this case.
+ 
+      If wtmode='ones', SIGMA and WEIGHT will be initialized with 1.0,
+      globally.  This is a traditional means of initializing weight
+      information, and is adequate when the integration time and 
+      bandwidth are uniform. It is not recommended for modern
+      instruments (ALMA, EVLA), where variety in observational setups
+      is common, and properly initialized and calibrated weights
+      will be used for imaging sensitivity estimates.
+
+      For the above wtmodes, if dowtspec=T (or if the WEIGHT_SPECTRUM
+      column already exists), the WEIGHT_SPECTRUM column will be
+      initialized (uniformly in channel), in a manner consistent with
+      the disposition of the WEIGHT column.  If the WEIGHT_SPECTRUM 
+      column does not exist, dowtsp=T will force its creation.
+      Use of the WEIGHT_SPECTRUM column is only meaningful
+      for ALMA data which will be calibrated with channelized
+      Tsys information, or if the weights will become channelized
+      after calibration, e.g., via averaging over time- and 
+      channel-dependent flagging.  (A task for channel-dependent
+      weight estimation from the data itself is also currently under
+      development).
+
+      Two additional modes are available for managing the spectral
+      weight info columns; these should be used with extreme care: If
+      wtmode='delwtsp', the WEIGHT_SPECTRUM column will be deleted (if
+      it exists).  If wtmode='delsigsp', the SIGMA_SPECTRUM column
+      will be deleted (if it exists).  Note that creation of
+      SIGMA_SPECTRUM is not supported via this method.
+
+      Note that this task does not support any prior selection.  
+      Intialization of the weight information must currently be done 
+      globally or not at all.  This is to maintain consistency.
+
+ </example>
+ </task>
+ </casaxml>
