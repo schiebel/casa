@@ -1,0 +1,3 @@
+[submodule "casacore"]
+	path = casacore
+	url = git@github.com:schiebel/casacore.git
